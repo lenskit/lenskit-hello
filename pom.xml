@@ -37,7 +37,7 @@
   <properties>
     <!-- Use a property to specify the LensKit version so it's easy to upgrade
          LensKit, even if you depend on multiple modules. -->
-    <lenskit.version>0.9-SNAPSHOT</lenskit.version>
+    <lenskit.version>0.9</lenskit.version>
   </properties>
 
   <dependencies>
