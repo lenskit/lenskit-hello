@@ -37,7 +37,8 @@
   <properties>
     <!-- Use a property to specify the LensKit version so it's easy to upgrade
          LensKit, even if you depend on multiple modules. -->
-    <lenskit.version>0.9</lenskit.version>
+    <lenskit.version>1.0.2</lenskit.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
   <dependencies>
@@ -62,6 +63,21 @@
   </dependencies>
 
   <build>
+    <pluginManagement>
+      <plugins>
+        <!-- Configure Java source & target versions. Putting this in pluginManagement
+             makes it easier to expand to a multi-module project later. -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>2.5.1</version>
+          <configuration>
+            <source>1.6</source>
+            <target>1.6</target>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
     <plugins>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
