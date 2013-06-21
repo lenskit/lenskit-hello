@@ -29,8 +29,7 @@ import org.grouplens.lenskit.core.LenskitRecommenderEngineFactory;
 import org.grouplens.lenskit.data.dao.DAOFactory;
 import org.grouplens.lenskit.data.dao.EventCollectionDAO;
 import org.grouplens.lenskit.data.dao.SimpleFileRatingDAO;
-import org.grouplens.lenskit.knn.item.ItemItemRatingPredictor;
-import org.grouplens.lenskit.knn.item.ItemItemRecommender;
+import org.grouplens.lenskit.knn.item.ItemItemScorer;
 import org.grouplens.lenskit.transform.normalize.BaselineSubtractingUserVectorNormalizer;
 import org.grouplens.lenskit.transform.normalize.UserVectorNormalizer;
 
@@ -94,13 +93,12 @@ public class HelloLenskit implements Runnable {
 
         // Second step is to create the LensKit factory...
         LenskitRecommenderEngineFactory factory = new LenskitRecommenderEngineFactory(daoFactory);
-        // ... and configure the recommender.  The bind and set methods
+        // ... and configure the item scorer.  The bind and set methods
         // are what you use to do that. Here, we want an item-item recommender and
         // rating predictor.
-        factory.bind(ItemRecommender.class)
-               .to(ItemItemRecommender.class);
         factory.bind(ItemScorer.class)
-               .to(ItemItemRatingPredictor.class);
+               .to(ItemItemScorer.class);
+
         // let's use personalized mean rating as the baseline predictor
         factory.bind(BaselinePredictor.class)
                .to(ItemUserMeanPredictor.class);
@@ -109,6 +107,7 @@ public class HelloLenskit implements Runnable {
         // to restrict what kind of vector normalizer we're talking about.
         factory.bind(UserVectorNormalizer.class)
                .to(BaselineSubtractingUserVectorNormalizer.class);
+
         // There are more parameters, roles, and components that can be set. See the
         // JavaDoc for each recommender algorithm for more information.
 

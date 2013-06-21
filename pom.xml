@@ -28,7 +28,7 @@
 
   <groupId>org.grouplens.lenskit</groupId>
   <artifactId>lenskit-hello</artifactId>
-  <version>0.9</version>
+  <version>1.1</version>
   <name>LensKit demo project</name>
   <description>
     This project demonstrates how to build a basic application with LensKit.
@@ -37,7 +37,7 @@
   <properties>
     <!-- Use a property to specify the LensKit version so it's easy to upgrade
          LensKit, even if you depend on multiple modules. -->
-    <lenskit.version>1.0.2</lenskit.version>
+    <lenskit.version>1.1</lenskit.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
@@ -57,7 +57,7 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-simple</artifactId>
-      <version>1.6.4</version>
+      <version>1.7.5</version>
       <scope>runtime</scope>
     </dependency>
   </dependencies>
