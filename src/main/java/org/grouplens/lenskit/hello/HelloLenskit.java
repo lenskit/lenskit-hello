@@ -21,15 +21,22 @@
  */
 package org.grouplens.lenskit.hello;
 
-import org.grouplens.lenskit.*;
-import org.grouplens.lenskit.baseline.BaselinePredictor;
-import org.grouplens.lenskit.baseline.ItemUserMeanPredictor;
-import org.grouplens.lenskit.collections.ScoredLongList;
-import org.grouplens.lenskit.core.LenskitRecommenderEngineFactory;
-import org.grouplens.lenskit.data.dao.DAOFactory;
+import org.grouplens.lenskit.ItemRecommender;
+import org.grouplens.lenskit.ItemScorer;
+import org.grouplens.lenskit.Recommender;
+import org.grouplens.lenskit.RecommenderBuildException;
+import org.grouplens.lenskit.baseline.BaselineScorer;
+import org.grouplens.lenskit.baseline.ItemMeanRatingItemScorer;
+import org.grouplens.lenskit.baseline.UserMeanBaseline;
+import org.grouplens.lenskit.baseline.UserMeanItemScorer;
+import org.grouplens.lenskit.core.LenskitConfiguration;
+import org.grouplens.lenskit.core.LenskitRecommender;
+import org.grouplens.lenskit.cursors.Cursors;
 import org.grouplens.lenskit.data.dao.EventCollectionDAO;
+import org.grouplens.lenskit.data.dao.EventDAO;
 import org.grouplens.lenskit.data.dao.SimpleFileRatingDAO;
 import org.grouplens.lenskit.knn.item.ItemItemScorer;
+import org.grouplens.lenskit.scored.ScoredId;
 import org.grouplens.lenskit.transform.normalize.BaselineSubtractingUserVectorNormalizer;
 import org.grouplens.lenskit.transform.normalize.UserVectorNormalizer;
 
@@ -84,66 +91,59 @@ public class HelloLenskit implements Runnable {
         // We first need to configure the data access.
         // We will use a simple delimited file; you can use something else like
         // a database (see JDBCRatingDAO).
-        DAOFactory daoFactory;
-        DAOFactory base = new SimpleFileRatingDAO.Factory(inputFile, delimiter);
+        EventDAO base = new SimpleFileRatingDAO(inputFile, delimiter);
         // Reading directly from CSV files is slow, so we'll cache it in memory.
         // You can use SoftFactory here to allow ratings to be expunged and re-read
         // as memory limits demand. If you're using a database, just use it directly.
-        daoFactory = EventCollectionDAO.Factory.wrap(base);
+        EventDAO dao = new EventCollectionDAO(Cursors.makeList(base.streamEvents()));
 
-        // Second step is to create the LensKit factory...
-        LenskitRecommenderEngineFactory factory = new LenskitRecommenderEngineFactory(daoFactory);
+        // Second step is to create the LensKit configuration...
+        LenskitConfiguration config = new LenskitConfiguration();
+        // ... configure the data source
+        config.bind(EventDAO.class).to(dao);
         // ... and configure the item scorer.  The bind and set methods
         // are what you use to do that. Here, we want an item-item recommender and
         // rating predictor.
-        factory.bind(ItemScorer.class)
-               .to(ItemItemScorer.class);
+        config.bind(ItemScorer.class)
+              .to(ItemItemScorer.class);
 
-        // let's use personalized mean rating as the baseline predictor
-        factory.bind(BaselinePredictor.class)
-               .to(ItemUserMeanPredictor.class);
+        // let's use personalized mean rating as the baseline predictor. 2-step process:
+        // First, use the user mean rating as the baseline scorer
+        config.bind(BaselineScorer.class, ItemScorer.class)
+               .to(UserMeanItemScorer.class);
+        // Second, use the item mean rating as the base for user means
+        config.bind(UserMeanBaseline.class, ItemScorer.class)
+              .to(ItemMeanRatingItemScorer.class);
         // and normalize ratings by baseline prior to computing similarities
         // This one has 3 parameters because it uses a role - UserVectorNormalizer -
         // to restrict what kind of vector normalizer we're talking about.
-        factory.bind(UserVectorNormalizer.class)
-               .to(BaselineSubtractingUserVectorNormalizer.class);
+        config.bind(UserVectorNormalizer.class)
+              .to(BaselineSubtractingUserVectorNormalizer.class);
 
         // There are more parameters, roles, and components that can be set. See the
         // JavaDoc for each recommender algorithm for more information.
 
-        // Now that we have a factory, build a recommender engine from the configuration
+        // Now that we have a factory, build a recommender from the configuration
         // and data source. This will compute the similarity matrix and return a recommender
-        // engine that uses it.
-        RecommenderEngine engine = null;
+        // that uses it.
+        Recommender rec = null;
         try {
-            engine = factory.create();
+            rec = LenskitRecommender.build(config);
         } catch (RecommenderBuildException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
+            throw new RuntimeException("recommender build failed", e);
         }
 
-        // To do recommendation, we first open the recommender
-        // You can do this e.g. in a web request in a real program
-        Recommender rec = engine.open();
-        // then use it!
-        try {
-            // we want to recommend items
-            ItemRecommender irec = rec.getItemRecommender();
-            assert irec != null; // not null because we configured one
-            // for users
-            for (long user: users) {
-                // get 10 recommendation for the user
-                ScoredLongList recs = irec.recommend(user, 10);
-                System.out.format("Recommendations for %d:\n", user);
-                for (long item: recs) {
-                    System.out.format("\t%d\n", item);
-                }
+        // we want to recommend items
+        ItemRecommender irec = rec.getItemRecommender();
+        assert irec != null; // not null because we configured one
+        // for users
+        for (long user: users) {
+            // get 10 recommendation for the user
+            List<ScoredId> recs = irec.recommend(user, 10);
+            System.out.format("Recommendations for %d:\n", user);
+            for (ScoredId item: recs) {
+                System.out.format("\t%d\n", item.getId());
             }
-
-            // If you want to predict ratings, you can use rec.getRatingPredictor
-        } finally {
-            // and close it when we're done
-            rec.close();
         }
     }
 }
