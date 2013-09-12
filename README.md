@@ -53,3 +53,11 @@ Have fun!
 [AppAssembler]: http://mojo.codehaus.org/appassembler/appassembler-maven-plugin/
 [mailing list]: https://wwws.cs.umn.edu/mm-cs/listinfo/lenskit
 [LensKitRS]: http://twitter.com/LensKitRS
+
+## Other Versions
+
+Various people have ported the lenskit-hello project to other languages:
+
+- [Clojure](https://gist.github.com/llasram/6472144)
+- [Python (Jython)](http://pastie.org/8298159)
+- [Ruby (JRuby)](https://gist.github.com/joshjordan/6446324)
