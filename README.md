@@ -37,11 +37,17 @@ for how we pull in LensKit, and how to depend on other modules.
 
 In the Maven POM, we have set up the [AppAssembler plugin][] to produce a runnable
 application with shell scripts and batch files to launch it. To build this, run the
-`package` Maven target. You can run this through your IDE, or from the command line
+`package` Maven target.
+
+[ML100K]: https://github.com/grouplens/lenskit/wiki/ML100K
+
+You'll also need a data set.  You can get the MovieLens 100K data set [here][ML100K].
+
+Once you have a data set, you can run lenskit-hello through your IDE, or from the command line
 (with Maven installed) as follows:
 
     $ mvn package
-    $ /bin/sh target/hello/bin/lenskit-hello.sh -d delimiter ratings.dat <userid>
+    $ /bin/sh target/hello/bin/lenskit-hello.sh -d :: ml100k/u.data <userid>
 
 The default delimiter is <tab>.
 
