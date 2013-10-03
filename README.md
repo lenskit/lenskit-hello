@@ -49,7 +49,7 @@ Once you have a data set, you can run lenskit-hello through your IDE, or from th
     $ mvn package
     $ /bin/sh target/hello/bin/lenskit-hello.sh -d :: ml100k/u.data <userid>
 
-The default delimiter is <tab>.
+The default delimiter is the tab character.
 
 Have fun!
 
