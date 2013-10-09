@@ -47,7 +47,7 @@ Once you have a data set, you can run lenskit-hello through your IDE, or from th
 (with Maven installed) as follows:
 
     $ mvn package
-    $ /bin/sh target/hello/bin/lenskit-hello.sh -d :: ml100k/u.data <userid>
+    $ /bin/sh target/hello/bin/lenskit-hello.sh ml100k/u.data <userid>
 
 The default delimiter is the tab character.
 
