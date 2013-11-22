@@ -102,12 +102,12 @@ public class HelloLenskit implements Runnable {
         // ... configure the data source
         config.bind(EventDAO.class).to(dao);
         // ... and configure the item scorer.  The bind and set methods
-        // are what you use to do that. Here, we want an item-item recommender and
-        // rating predictor.
+        // are what you use to do that. Here, we want an item-item scorer.
         config.bind(ItemScorer.class)
               .to(ItemItemScorer.class);
 
-        // let's use personalized mean rating as the baseline predictor. 2-step process:
+        // let's use personalized mean rating as the baseline/fallback predictor.
+        // 2-step process:
         // First, use the user mean rating as the baseline scorer
         config.bind(BaselineScorer.class, ItemScorer.class)
                .to(UserMeanItemScorer.class);
@@ -115,8 +115,6 @@ public class HelloLenskit implements Runnable {
         config.bind(UserMeanBaseline.class, ItemScorer.class)
               .to(ItemMeanRatingItemScorer.class);
         // and normalize ratings by baseline prior to computing similarities
-        // This one has 3 parameters because it uses a role - UserVectorNormalizer -
-        // to restrict what kind of vector normalizer we're talking about.
         config.bind(UserVectorNormalizer.class)
               .to(BaselineSubtractingUserVectorNormalizer.class);
 
