@@ -1,5 +1,0 @@
-^target/
-^\.idea(_modules)?/
-~$
-\#[/]*\#
-\.iml$
