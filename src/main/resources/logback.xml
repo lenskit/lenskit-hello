@@ -1,0 +1,13 @@
+<configuration>
+  <appender name="STDERR" class="ch.qos.logback.core.ConsoleAppender">
+    <target>System.err</target>
+    <withJansi>true</withJansi>
+    <encoder>
+      <pattern>%highlight(%-5level) %cyan(%logger{24}) - %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <root level="${log.level:-INFO}">
+    <appender-ref ref="STDERR" />
+  </root>
+</configuration>
