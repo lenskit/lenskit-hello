@@ -37,7 +37,7 @@
   <properties>
     <!-- Use a property to specify the LensKit version so it's easy to upgrade
          LensKit, even if you depend on multiple modules. -->
-    <lenskit.version>2.0.5</lenskit.version>
+    <lenskit.version>2.1-SNAPSHOT</lenskit.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
