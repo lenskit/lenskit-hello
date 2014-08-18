@@ -31,8 +31,6 @@ import org.grouplens.lenskit.baseline.UserMeanBaseline;
 import org.grouplens.lenskit.baseline.UserMeanItemScorer;
 import org.grouplens.lenskit.core.LenskitConfiguration;
 import org.grouplens.lenskit.core.LenskitRecommender;
-import org.grouplens.lenskit.cursors.Cursors;
-import org.grouplens.lenskit.data.dao.EventCollectionDAO;
 import org.grouplens.lenskit.data.dao.EventDAO;
 import org.grouplens.lenskit.data.dao.SimpleFileRatingDAO;
 import org.grouplens.lenskit.knn.item.ItemItemScorer;
@@ -91,16 +89,12 @@ public class HelloLenskit implements Runnable {
         // We first need to configure the data access.
         // We will use a simple delimited file; you can use something else like
         // a database (see JDBCRatingDAO).
-        EventDAO base = new SimpleFileRatingDAO(inputFile, delimiter);
-        // Reading directly from CSV files is slow, so we'll cache it in memory.
-        // You can use SoftFactory here to allow ratings to be expunged and re-read
-        // as memory limits demand. If you're using a database, just use it directly.
-        EventDAO dao = new EventCollectionDAO(Cursors.makeList(base.streamEvents()));
+        EventDAO dao = new SimpleFileRatingDAO(inputFile, delimiter);
 
         // Second step is to create the LensKit configuration...
         LenskitConfiguration config = new LenskitConfiguration();
         // ... configure the data source
-        config.bind(EventDAO.class).to(dao);
+        config.addComponent(dao);
         // ... and configure the item scorer.  The bind and set methods
         // are what you use to do that. Here, we want an item-item scorer.
         config.bind(ItemScorer.class)
