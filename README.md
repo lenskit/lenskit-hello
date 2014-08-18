@@ -1,7 +1,7 @@
 # LensKit Demo Project
 
 This is a demo project that shows how to create a project using [LensKit][] and set
-get the recommener running.  It creates a simple command line application that
+get the recommender running.  It creates a simple command line application that
 builds a recommender from a delimited text file of ratings, then recommends items
 for users specified at the command line.
 
