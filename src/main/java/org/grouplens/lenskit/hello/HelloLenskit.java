@@ -54,7 +54,8 @@ public class HelloLenskit implements Runnable {
         try {
             hello.run();
         } catch (RuntimeException e) {
-            System.err.println(e.getMessage());
+            System.err.println(e.toString());
+            e.printStackTrace(System.err);
             System.exit(1);
         }
     }
