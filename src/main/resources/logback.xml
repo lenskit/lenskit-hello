@@ -7,6 +7,8 @@
     </encoder>
   </appender>
 
+  <logger name="org.grouplens.grapht" level="${grapht.log.level:-WARN}"/>
+
   <root level="${log.level:-INFO}">
     <appender-ref ref="STDERR" />
   </root>
