@@ -3,6 +3,8 @@ apply plugin: 'application'
 
 sourceCompatibility = '1.6'
 
+mainClassName = 'org.grouplens.lenskit.hello.HelloLenskit'
+
 repositories {
     mavenCentral()
 }
@@ -10,3 +12,5 @@ dependencies {
     compile 'org.grouplens.lenskit:lenskit-all:2.2-M3'
     runtime 'ch.qos.logback:logback-classic:1.1.2'
 }
+
+build.dependsOn installDist
