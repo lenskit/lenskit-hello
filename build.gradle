@@ -1,0 +1,12 @@
+apply plugin: 'java'
+apply plugin: 'application'
+
+sourceCompatibility = '1.6'
+
+repositories {
+    mavenCentral()
+}
+dependencies {
+    compile 'org.grouplens.lenskit:lenskit-all:2.2-M3'
+    runtime 'ch.qos.logback:logback-classic:1.1.2'
+}
