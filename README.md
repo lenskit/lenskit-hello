@@ -8,10 +8,8 @@ for users specified at the command line.
 The main code is in `org.grouplens.lenskit.hello.HelloLenskit`. There are comments
 so you can follow along and see what each stage of the process does.
 
-If you are building a web application, you will need to adapt this project; the
-project type will need to be changed to a `war`, and you won't want to use the
-`HelloLenskit` main class. But the basic things done in that class will need to be
-done in your application somewhere.
+If you are building a web application, you will need to adapt this project. But the
+basic things done in that class will need to be done in your application somewhere.
 
 The [LensKit home page][LensKit] has further documentation for LensKit, as well as
 links to our bug tracker and wiki. Also be sure to subscribe to our [mailing list][]
@@ -20,33 +18,27 @@ and ask any further questions you may have about using LensKit, and follow our
 
 ## Project Setup
 
-This project uses [Apache Maven][maven] for build and dependency management. It is
-easy to import into an IDE; a Maven plugin for Eclipse is available in the Eclipse
-Marketplace (in your *Help* menu), and NetBeans and IntelliJ IDEA both have Maven
-support built-in. These IDEs will import your project directly from the Maven `pom.xml`
-and set up the build and dependencies.
+This project uses [Gradle][gradle] for build and dependency management. It is
+easy to import into an IDE; Gradle support is included with or available for
+NetBeans, IntelliJ IDEA, and Eclipse.  These IDEs will import your project directly
+from the Gradle `build.gradle` file and set up the build and dependencies.
 
-**Note**: If you import the Mercurial repository into Eclipse using the [MercurialEclipse][]
-plugin, you'll need to convert it to a Maven project (right-click the project, select
-*Configure -> Convert to Maven Project*) after importing.
-
-The `pom.xml` file contains the project definition and its dependencies. Review this
-for how we pull in LensKit, and how to depend on other modules.
+The `build.gradle` file contains the project definition and its dependencies. Review
+this for how we pull in LensKit, and how to depend on other modules.
 
 ## Building and Running
 
-In the Maven POM, we have set up the [AppAssembler plugin][] to produce a runnable
-application with shell scripts and batch files to launch it. To build this, run the
-`package` Maven target.
+In the Gradle build, we use the Application plugin to create a shell script and copy
+the dependency JARs in order to run the LensKit application.
 
 [ML100K]: https://github.com/grouplens/lenskit/wiki/ML100K
 
 You'll also need a data set.  You can get the MovieLens 100K data set [here][ML100K].
 
 Once you have a data set, you can run lenskit-hello through your IDE, or from the command line
-(with Maven installed) as follows:
+as follows:
 
-    $ mvn package
+    $ ./gradlew build
     $ /bin/sh target/hello/bin/lenskit-hello.sh ml100k/u.data <userid>
 
 The default delimiter is the tab character.
@@ -54,7 +46,7 @@ The default delimiter is the tab character.
 Have fun!
 
 [LensKit]: http://lenskit.grouplens.org
-[maven]: http://maven.apache.org
+[gradle]: http://gradle.org
 [MercurialEclipse]: http://javaforge.com/project/HGE
 [AppAssembler]: http://mojo.codehaus.org/appassembler/appassembler-maven-plugin/
 [mailing list]: https://wwws.cs.umn.edu/mm-cs/listinfo/lenskit
