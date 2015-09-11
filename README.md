@@ -39,16 +39,14 @@ Once you have a data set, you can run lenskit-hello through your IDE, or from th
 as follows:
 
     $ ./gradlew build
-    $ /bin/sh build/install/lenskit-hello/bin/lenskit-hello ml100k/u.data <userid>
+    $ /bin/sh build/install/lenskit-hello/bin/lenskit-hello ml-100k/u.data <userid>
 
 The default delimiter is the tab character.
 
 Have fun!
 
-[LensKit]: http://lenskit.grouplens.org
+[LensKit]: http://lenskit.org
 [gradle]: http://gradle.org
-[MercurialEclipse]: http://javaforge.com/project/HGE
-[AppAssembler]: http://mojo.codehaus.org/appassembler/appassembler-maven-plugin/
 [mailing list]: https://wwws.cs.umn.edu/mm-cs/listinfo/lenskit
 [LensKitRS]: http://twitter.com/LensKitRS
 

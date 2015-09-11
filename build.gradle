@@ -9,7 +9,7 @@ repositories {
     mavenCentral()
 }
 dependencies {
-    compile 'org.grouplens.lenskit:lenskit-all:2.2-M3'
+    compile 'org.grouplens.lenskit:lenskit-all:2.2'
     runtime 'ch.qos.logback:logback-classic:1.1.2'
 }
 
