@@ -40,8 +40,13 @@ as follows:
 
     $ ./gradlew build
     $ /bin/sh build/install/lenskit-hello/bin/lenskit-hello ml-100k/u.data <userid>
+    
+If you are on Windows, do:
 
-The default delimiter is the tab character.
+    C:\LensKit\lenskit-hello> .\gradlew.bat build
+    C:\LensKit\lenskit-hello> .\build\install\lenskit-hello\bin\lenskit-hello.bat ml-100k/u.data <userid>
+
+The default delimiter is the tab character.  A user ID of 100 is valid and good for a quick demo.
 
 Have fun!
 

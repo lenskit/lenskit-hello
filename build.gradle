@@ -7,10 +7,14 @@ mainClassName = 'org.grouplens.lenskit.hello.HelloLenskit'
 
 repositories {
     mavenCentral()
+    maven {
+        url 'https://oss.sonatype.org/content/repositories/snapshots/'
+    }
 }
 dependencies {
-    compile 'org.grouplens.lenskit:lenskit-all:2.2'
+    compile 'org.grouplens.lenskit:lenskit-all:3.0-SNAPSHOT'
     runtime 'ch.qos.logback:logback-classic:1.1.2'
+    runtime 'org.fusesource.jansi:jansi:1.8'
 }
 
 build.dependsOn installDist
