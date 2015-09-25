@@ -31,22 +31,23 @@ this for how we pull in LensKit, and how to depend on other modules.
 In the Gradle build, we use the Application plugin to create a shell script and copy
 the dependency JARs in order to run the LensKit application.
 
-[ML100K]: https://github.com/grouplens/lenskit/wiki/ML100K
+LensKit Hello runs on a copy of the MovieLens Latest Small data set, included in the `data` directory.
+More up-to-date versions of this data set, along with a larger data set of 20M ratings, can be downloaded
+from <http://grouplens.org/datasets/movielens/>.
 
-You'll also need a data set.  You can get the MovieLens 100K data set [here][ML100K].
-
-Once you have a data set, you can run lenskit-hello through your IDE, or from the command line
+You can run lenskit-hello through your IDE, or from the command line
 as follows:
 
     $ ./gradlew build
-    $ /bin/sh build/install/lenskit-hello/bin/lenskit-hello ml-100k/u.data <userid>
+    $ /bin/sh build/install/lenskit-hello/bin/lenskit-hello <userid>
     
 If you are on Windows, do:
 
     C:\LensKit\lenskit-hello> .\gradlew.bat build
-    C:\LensKit\lenskit-hello> .\build\install\lenskit-hello\bin\lenskit-hello.bat ml-100k/u.data <userid>
+    C:\LensKit\lenskit-hello> .\build\install\lenskit-hello\bin\lenskit-hello.bat <userid>
 
-The default delimiter is the tab character.  A user ID of 100 is valid and good for a quick demo.
+A user ID of 72 is valid and good for a quick demo.  You can specify more than one user ID, and it will
+produce recommendations for each user.
 
 Have fun!
 

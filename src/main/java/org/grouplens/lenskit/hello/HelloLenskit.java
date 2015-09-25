@@ -24,6 +24,9 @@ package org.grouplens.lenskit.hello;
 import org.grouplens.lenskit.RecommenderBuildException;
 import org.grouplens.lenskit.core.LenskitConfiguration;
 import org.grouplens.lenskit.data.dao.EventDAO;
+import org.grouplens.lenskit.data.dao.ItemNameDAO;
+import org.grouplens.lenskit.data.dao.MapItemNameDAO;
+import org.grouplens.lenskit.data.text.Formats;
 import org.grouplens.lenskit.data.text.TextEventDAO;
 import org.grouplens.lenskit.transform.normalize.BaselineSubtractingUserVectorNormalizer;
 import org.grouplens.lenskit.transform.normalize.UserVectorNormalizer;
@@ -33,9 +36,11 @@ import org.lenskit.baseline.BaselineScorer;
 import org.lenskit.baseline.ItemMeanRatingItemScorer;
 import org.lenskit.baseline.UserMeanBaseline;
 import org.lenskit.baseline.UserMeanItemScorer;
+import org.lenskit.knn.MinNeighbors;
 import org.lenskit.knn.item.ItemItemScorer;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,28 +63,14 @@ public class HelloLenskit implements Runnable {
     }
 
     private String delimiter = "\t";
-    private File inputFile = new File("ratings.dat");
+    private File inputFile = new File("data/ratings.csv");
+    private File movieFile = new File("data/movies.csv");
     private List<Long> users;
 
     public HelloLenskit(String[] args) {
-        int nextArg = 0;
-        boolean done = false;
-        while (!done && nextArg < args.length) {
-            String arg = args[nextArg];
-            if (arg.equals("-d")) {
-                delimiter = args[nextArg + 1];
-                nextArg += 2;
-            } else if (arg.startsWith("-")) {
-                throw new RuntimeException("unknown option: " + arg);
-            } else {
-                inputFile = new File(arg);
-                nextArg += 1;
-                done = true;
-            }
-        }
-        users = new ArrayList<Long>(args.length - nextArg);
-        for (; nextArg < args.length; nextArg++) {
-            users.add(Long.parseLong(args[nextArg]));
+        users = new ArrayList<Long>(args.length);
+        for (String arg: args) {
+            users.add(Long.parseLong(arg));
         }
     }
 
@@ -87,7 +78,13 @@ public class HelloLenskit implements Runnable {
         // We first need to configure the data access.
         // We will use a simple delimited file; you can use something else like
         // a database (see JDBCRatingDAO).
-        EventDAO dao = TextEventDAO.ratings(inputFile, delimiter);
+        EventDAO dao = TextEventDAO.create(inputFile, Formats.movieLensLatest());
+        ItemNameDAO names;
+        try {
+            names = MapItemNameDAO.fromCSVFile(movieFile, 1);
+        } catch (IOException e) {
+            throw new RuntimeException("cannot load names", e);
+        }
 
         // Second step is to create the LensKit configuration...
         LenskitConfiguration config = new LenskitConfiguration();
@@ -97,6 +94,8 @@ public class HelloLenskit implements Runnable {
         // are what you use to do that. Here, we want an item-item scorer.
         config.bind(ItemScorer.class)
               .to(ItemItemScorer.class);
+        // Item-item works best with a minimum neighbor count
+        config.set(MinNeighbors.class).to(2);
 
         // let's use personalized mean rating as the baseline/fallback predictor.
         // 2-step process:
@@ -116,7 +115,7 @@ public class HelloLenskit implements Runnable {
         // Now that we have a factory, build a recommender from the configuration
         // and data source. This will compute the similarity matrix and return a recommender
         // that uses it.
-        Recommender rec = null;
+        LenskitRecommender rec = null;
         try {
             rec = LenskitRecommender.build(config);
         } catch (RecommenderBuildException e) {
@@ -130,9 +129,10 @@ public class HelloLenskit implements Runnable {
         for (long user: users) {
             // get 10 recommendation for the user
             ResultList recs = irec.recommendWithDetails(user, 10, null, null);
-            System.out.format("Recommendations for %d:\n", user);
+            System.out.format("Recommendations for user %d:\n", user);
             for (Result item: recs) {
-                System.out.format("\t%d\t%.2f\n", item.getId(), item.getScore());
+                String name = names.getItemName(item.getId());
+                System.out.format("\t%d (%s): %.2f\n", item.getId(), name, item.getScore());
             }
         }
     }
