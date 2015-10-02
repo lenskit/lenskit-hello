@@ -21,21 +21,20 @@
  */
 package org.grouplens.lenskit.hello;
 
-import org.grouplens.lenskit.RecommenderBuildException;
-import org.grouplens.lenskit.core.LenskitConfiguration;
-import org.grouplens.lenskit.data.dao.EventDAO;
-import org.grouplens.lenskit.data.dao.ItemNameDAO;
-import org.grouplens.lenskit.data.dao.MapItemNameDAO;
 import org.grouplens.lenskit.data.text.Formats;
 import org.grouplens.lenskit.data.text.TextEventDAO;
 import org.grouplens.lenskit.transform.normalize.BaselineSubtractingUserVectorNormalizer;
 import org.grouplens.lenskit.transform.normalize.UserVectorNormalizer;
+import org.lenskit.LenskitConfiguration;
 import org.lenskit.LenskitRecommender;
 import org.lenskit.api.*;
 import org.lenskit.baseline.BaselineScorer;
 import org.lenskit.baseline.ItemMeanRatingItemScorer;
 import org.lenskit.baseline.UserMeanBaseline;
 import org.lenskit.baseline.UserMeanItemScorer;
+import org.lenskit.data.dao.EventDAO;
+import org.lenskit.data.dao.ItemNameDAO;
+import org.lenskit.data.dao.MapItemNameDAO;
 import org.lenskit.knn.MinNeighbors;
 import org.lenskit.knn.item.ItemItemScorer;
 
@@ -62,7 +61,6 @@ public class HelloLenskit implements Runnable {
         }
     }
 
-    private String delimiter = "\t";
     private File inputFile = new File("data/ratings.csv");
     private File movieFile = new File("data/movies.csv");
     private List<Long> users;
