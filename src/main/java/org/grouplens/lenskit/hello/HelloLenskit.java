@@ -21,8 +21,10 @@
  */
 package org.grouplens.lenskit.hello;
 
+import org.lenskit.LenskitRecommenderEngine;
 import org.lenskit.api.RecommenderBuildException;
 import org.lenskit.LenskitConfiguration;
+import org.lenskit.config.ConfigHelpers;
 import org.lenskit.data.dao.EventDAO;
 import org.lenskit.data.dao.ItemNameDAO;
 import org.lenskit.data.dao.MapItemNameDAO;
@@ -86,53 +88,39 @@ public class HelloLenskit implements Runnable {
             throw new RuntimeException("cannot load names", e);
         }
 
-        // Second step is to create the LensKit configuration...
-        LenskitConfiguration config = new LenskitConfiguration();
-        // ... configure the data source
+        // Next: load the LensKit algorithm configuration
+        LenskitConfiguration config = null;
+        try {
+            config = ConfigHelpers.load(new File("etc/item-item.groovy"));
+        } catch (IOException e) {
+            throw new RuntimeException("could not load configuration", e);
+        }
+        // Add our data component to the configuration
         config.addComponent(dao);
-        // ... and configure the item scorer.  The bind and set methods
-        // are what you use to do that. Here, we want an item-item scorer.
-        config.bind(ItemScorer.class)
-              .to(ItemItemScorer.class);
-        // Item-item works best with a minimum neighbor count
-        config.set(MinNeighbors.class).to(2);
 
-        // let's use personalized mean rating as the baseline/fallback predictor.
-        // 2-step process:
-        // First, use the user mean rating as the baseline scorer
-        config.bind(BaselineScorer.class, ItemScorer.class)
-               .to(UserMeanItemScorer.class);
-        // Second, use the item mean rating as the base for user means
-        config.bind(UserMeanBaseline.class, ItemScorer.class)
-              .to(ItemMeanRatingItemScorer.class);
-        // and normalize ratings by baseline prior to computing similarities
-        config.bind(UserVectorNormalizer.class)
-              .to(BaselineSubtractingUserVectorNormalizer.class);
 
         // There are more parameters, roles, and components that can be set. See the
         // JavaDoc for each recommender algorithm for more information.
 
-        // Now that we have a factory, build a recommender from the configuration
+        // Now that we have a configuration, build a recommender engine from the configuration
         // and data source. This will compute the similarity matrix and return a recommender
-        // that uses it.
-        LenskitRecommender rec = null;
-        try {
-            rec = LenskitRecommender.build(config);
-        } catch (RecommenderBuildException e) {
-            throw new RuntimeException("recommender build failed", e);
-        }
+        // engine that uses it.
+        LenskitRecommenderEngine engine = LenskitRecommenderEngine.build(config);
 
-        // we want to recommend items
-        ItemRecommender irec = rec.getItemRecommender();
-        assert irec != null; // not null because we configured one
-        // for users
-        for (long user: users) {
-            // get 10 recommendation for the user
-            ResultList recs = irec.recommendWithDetails(user, 10, null, null);
-            System.out.format("Recommendations for user %d:\n", user);
-            for (Result item: recs) {
-                String name = names.getItemName(item.getId());
-                System.out.format("\t%d (%s): %.2f\n", item.getId(), name, item.getScore());
+        // Finally, get the recommender and use it.
+        try (LenskitRecommender rec = engine.createRecommender()) {
+            // we want to recommend items
+            ItemRecommender irec = rec.getItemRecommender();
+            assert irec != null; // not null because we configured one
+            // for users
+            for (long user : users) {
+                // get 10 recommendation for the user
+                ResultList recs = irec.recommendWithDetails(user, 10, null, null);
+                System.out.format("Recommendations for user %d:\n", user);
+                for (Result item : recs) {
+                    String name = names.getItemName(item.getId());
+                    System.out.format("\t%d (%s): %.2f\n", item.getId(), name, item.getScore());
+                }
             }
         }
     }
