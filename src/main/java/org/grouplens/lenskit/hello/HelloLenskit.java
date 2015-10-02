@@ -21,11 +21,11 @@
  */
 package org.grouplens.lenskit.hello;
 
-import org.grouplens.lenskit.RecommenderBuildException;
-import org.grouplens.lenskit.core.LenskitConfiguration;
-import org.grouplens.lenskit.data.dao.EventDAO;
-import org.grouplens.lenskit.data.dao.ItemNameDAO;
-import org.grouplens.lenskit.data.dao.MapItemNameDAO;
+import org.lenskit.api.RecommenderBuildException;
+import org.lenskit.LenskitConfiguration;
+import org.lenskit.data.dao.EventDAO;
+import org.lenskit.data.dao.ItemNameDAO;
+import org.lenskit.data.dao.MapItemNameDAO;
 import org.grouplens.lenskit.data.text.Formats;
 import org.grouplens.lenskit.data.text.TextEventDAO;
 import org.grouplens.lenskit.transform.normalize.BaselineSubtractingUserVectorNormalizer;
