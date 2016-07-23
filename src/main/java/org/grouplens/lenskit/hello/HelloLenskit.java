@@ -21,28 +21,26 @@
  */
 package org.grouplens.lenskit.hello;
 
-import org.lenskit.LenskitRecommenderEngine;
-import org.lenskit.api.RecommenderBuildException;
+import com.google.common.base.Throwables;
 import org.lenskit.LenskitConfiguration;
-import org.lenskit.config.ConfigHelpers;
-import org.lenskit.data.dao.EventDAO;
-import org.lenskit.data.dao.ItemNameDAO;
-import org.lenskit.data.dao.MapItemNameDAO;
-import org.grouplens.lenskit.data.text.Formats;
-import org.grouplens.lenskit.data.text.TextEventDAO;
-import org.grouplens.lenskit.transform.normalize.BaselineSubtractingUserVectorNormalizer;
-import org.grouplens.lenskit.transform.normalize.UserVectorNormalizer;
 import org.lenskit.LenskitRecommender;
-import org.lenskit.api.*;
-import org.lenskit.baseline.BaselineScorer;
-import org.lenskit.baseline.ItemMeanRatingItemScorer;
-import org.lenskit.baseline.UserMeanBaseline;
-import org.lenskit.baseline.UserMeanItemScorer;
-import org.lenskit.knn.MinNeighbors;
-import org.lenskit.knn.item.ItemItemScorer;
+import org.lenskit.LenskitRecommenderEngine;
+import org.lenskit.api.ItemRecommender;
+import org.lenskit.api.Result;
+import org.lenskit.api.ResultList;
+import org.lenskit.config.ConfigHelpers;
+import org.lenskit.data.dao.DataAccessObject;
+import org.lenskit.data.dao.file.StaticDataSource;
+import org.lenskit.data.entities.CommonAttributes;
+import org.lenskit.data.entities.CommonTypes;
+import org.lenskit.data.entities.Entity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,6 +51,8 @@ import java.util.List;
  * Usage: java org.grouplens.lenskit.hello.HelloLenskit ratings.csv user
  */
 public class HelloLenskit implements Runnable {
+    private static final Logger logger = LoggerFactory.getLogger(HelloLenskit.class);
+
     public static void main(String[] args) {
         HelloLenskit hello = new HelloLenskit(args);
         try {
@@ -64,13 +64,11 @@ public class HelloLenskit implements Runnable {
         }
     }
 
-    private String delimiter = "\t";
-    private File inputFile = new File("data/ratings.csv");
-    private File movieFile = new File("data/movies.csv");
+    private Path dataFile = Paths.get("data/movielens.yml");
     private List<Long> users;
 
     public HelloLenskit(String[] args) {
-        users = new ArrayList<Long>(args.length);
+        users = new ArrayList<>(args.length);
         for (String arg: args) {
             users.add(Long.parseLong(arg));
         }
@@ -78,14 +76,16 @@ public class HelloLenskit implements Runnable {
 
     public void run() {
         // We first need to configure the data access.
-        // We will use a simple delimited file; you can use something else like
-        // a database (see JDBCRatingDAO).
-        EventDAO dao = TextEventDAO.create(inputFile, Formats.movieLensLatest());
-        ItemNameDAO names;
+        // We will load data from a static data source; you could implement your own DAO
+        // on top of a database of some kind
+        DataAccessObject dao;
         try {
-            names = MapItemNameDAO.fromCSVFile(movieFile, 1);
+            StaticDataSource data = StaticDataSource.load(dataFile);
+            // get the data from the DAO
+            dao = data.get();
         } catch (IOException e) {
-            throw new RuntimeException("cannot load names", e);
+            logger.error("cannot load data", e);
+            throw Throwables.propagate(e);
         }
 
         // Next: load the LensKit algorithm configuration
@@ -95,8 +95,6 @@ public class HelloLenskit implements Runnable {
         } catch (IOException e) {
             throw new RuntimeException("could not load configuration", e);
         }
-        // Add our data component to the configuration
-        config.addComponent(dao);
 
 
         // There are more parameters, roles, and components that can be set. See the
@@ -105,10 +103,12 @@ public class HelloLenskit implements Runnable {
         // Now that we have a configuration, build a recommender engine from the configuration
         // and data source. This will compute the similarity matrix and return a recommender
         // engine that uses it.
-        LenskitRecommenderEngine engine = LenskitRecommenderEngine.build(config);
+        LenskitRecommenderEngine engine = LenskitRecommenderEngine.build(config, dao);
+        logger.info("built recommender engine");
 
         // Finally, get the recommender and use it.
-        try (LenskitRecommender rec = engine.createRecommender()) {
+        try (LenskitRecommender rec = engine.createRecommender(dao)) {
+            logger.info("obtained recommender from engine");
             // we want to recommend items
             ItemRecommender irec = rec.getItemRecommender();
             assert irec != null; // not null because we configured one
@@ -118,7 +118,11 @@ public class HelloLenskit implements Runnable {
                 ResultList recs = irec.recommendWithDetails(user, 10, null, null);
                 System.out.format("Recommendations for user %d:\n", user);
                 for (Result item : recs) {
-                    String name = names.getItemName(item.getId());
+                    Entity itemData = dao.lookupEntity(CommonTypes.ITEM, item.getId());
+                    String name = null;
+                    if (itemData != null) {
+                        name = itemData.maybeGet(CommonAttributes.NAME);
+                    }
                     System.out.format("\t%d (%s): %.2f\n", item.getId(), name, item.getScore());
                 }
             }
