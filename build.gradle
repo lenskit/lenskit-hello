@@ -12,8 +12,12 @@ repositories {
     }
 }
 dependencies {
-    compile 'org.lenskit:lenskit-all:3.0-M1'
+    compile 'org.lenskit:lenskit-all:3.0-M2'
     runtime 'ch.qos.logback:logback-classic:1.1.2'
+}
+
+startScripts {
+    defaultJvmOpts = ['-Xmx1g']
 }
 
 build.dependsOn installDist
