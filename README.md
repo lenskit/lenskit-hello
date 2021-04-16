@@ -1,6 +1,6 @@
 # LensKit Demo Project
 
-[![Join the chat at https://gitter.im/lenskit/lenskit](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/lenskit/lenskit?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+**Update:** this project is no longer maintained. See [LensKit for Python](https://lkpy.lenskit.org).
 
 This is a demo project that shows how to create a project using [LensKit][] and set
 get the recommender running.  It creates a simple command line application that
