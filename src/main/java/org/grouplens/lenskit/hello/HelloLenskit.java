@@ -117,6 +117,7 @@ public class HelloLenskit implements Runnable {
                 // get 10 recommendation for the user
                 ResultList recs = irec.recommendWithDetails(user, 10, null, null);
                 System.out.format("Recommendations for user %d:\n", user);
+                System.out.println("\titemId itemName: itemScore\n");
                 for (Result item : recs) {
                     Entity itemData = dao.lookupEntity(CommonTypes.ITEM, item.getId());
                     String name = null;
